@@ -47,12 +47,16 @@ function App() {
   };
 
   const handleLogout = () => {
+    // Step 1: Clear localStorage immediately
     localStorage.removeItem('user');
+    
+    // Step 2: Reset all states in correct order
     setCurrentUser(null);
     setIsLoggedIn(false);
-    setCurrentPage('login');
-    // Force clear sidebar state
     setSidebarOpen(true);
+    setWishlist([]);
+    setCart([]);
+    setCurrentPage('login');
   };
 
   const handleToggleSidebar = () => {
@@ -91,9 +95,13 @@ function App() {
     setWishlist(prev => prev.filter(w => w.id !== itemId));
   };
 
-  // Show login page if not logged in
+  // Show login page if not logged in (works on all screen sizes)
   if (!isLoggedIn) {
-    return <LoginPage key="login-page" onLogin={handleLogin} />;
+    return (
+      <div key="login-wrapper" style={{ width: '100%', minHeight: '100vh' }}>
+        <LoginPage key="login-page-instance" onLogin={handleLogin} />
+      </div>
+    );
   }
 
   return (
