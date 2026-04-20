@@ -11,7 +11,7 @@ import img333 from '../img333.jpg';
 import kudiImage from '../kudi.png';
 import sideImage from '../sidev.png';
 
-export function MyInformationDashboard({ currentUser = null, sidebarOpen = true, onSidebarToggle = null }) {
+export function MyInformationDashboard({ currentUser = null, sidebarOpen = true, onSidebarToggle = null, onLogout = null }) {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [internalSidebarOpen, setInternalSidebarOpen] = useState(sidebarOpen);
   const [profileImage, setProfileImage] = useState(null);
@@ -238,7 +238,14 @@ export function MyInformationDashboard({ currentUser = null, sidebarOpen = true,
 
         {/* Logout Button - Pinned at Bottom */}
         <div className="p-3 border-t border-amber-600">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition">
+          <button 
+            onClick={() => {
+              if (onLogout) {
+                onLogout();
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition"
+          >
             <LogOut className="w-4 h-4" />
             Logout
           </button>

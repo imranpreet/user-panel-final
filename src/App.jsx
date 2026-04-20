@@ -44,10 +44,17 @@ function App() {
   };
 
   const handleLogout = () => {
+    // Clear all user data
     localStorage.removeItem('user');
+    localStorage.clear();
+    
+    // Reset all state
     setCurrentUser(null);
     setIsLoggedIn(false);
+    setSidebarOpen(true);
     setCurrentPage('my-information');
+    setWishlist([]);
+    setCart([]);
   };
 
   const handleToggleSidebar = () => {
@@ -88,7 +95,11 @@ function App() {
 
   // Show login page if not logged in
   if (!isLoggedIn) {
-    return <LoginPage onLogin={handleLogin} />;
+    return (
+      <div className="w-full min-h-screen overflow-hidden">
+        <LoginPage key="login-page" onLogin={handleLogin} />
+      </div>
+    );
   }
 
   return (
@@ -115,7 +126,7 @@ function App() {
       
       {currentPage === 'my-information' && (
         <>
-          <MyInformationDashboard currentUser={currentUser} sidebarOpen={sidebarOpen} onSidebarToggle={handleToggleSidebar} />
+          <MyInformationDashboard currentUser={currentUser} sidebarOpen={sidebarOpen} onSidebarToggle={handleToggleSidebar} onLogout={handleLogout} />
           <Footer />
         </>
       )}
