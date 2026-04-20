@@ -121,7 +121,7 @@ function App() {
       
       {currentPage === 'my-account' && (
         <>
-          <MyAccount onNavigate={setCurrentPage} />
+          <MyAccount onNavigate={setCurrentPage} onLogout={handleLogout} />
           <Footer />
         </>
       )}

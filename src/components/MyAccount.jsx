@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, MapPin, ShoppingBag, Store, LogOut, Gift, ChevronRight, Palette } from 'lucide-react';
 
-export function MyAccount({ onNavigate }) {
+export function MyAccount({ onNavigate, onLogout }) {
   const accountOptions = [
     {
       id: 1,
@@ -117,7 +117,11 @@ export function MyAccount({ onNavigate }) {
                 </p>
               </div>
               <button 
-                onClick={() => handleCardClick('home')}
+                onClick={() => {
+                  if (onLogout) {
+                    onLogout();
+                  }
+                }}
                 className="px-6 py-2 md:px-8 md:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold text-sm md:text-base whitespace-nowrap"
               >
                 Logout
