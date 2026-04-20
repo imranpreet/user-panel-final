@@ -15,6 +15,7 @@ import { FeaturedArtists } from './components/FeaturedArtists'
 import { AllExpertsPage } from './components/AllExpertsPage'
 import { AllArtworks } from './components/AllArtworks'
 import { ArtifactsGallery } from './components/ArtifactsGallery'
+import { ExhibitionsPage } from './components/ExhibitionsPage'
 import { CheckoutPage } from './components/CheckoutPage'
 import { ConversationsSection } from './components/ConversationsSection'
 import { GalleriesSection } from './components/GalleriesSection'
@@ -24,7 +25,7 @@ import { Footer } from './components/Footer'
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [currentPage, setCurrentPage] = useState('my-information');
+  const [currentPage, setCurrentPage] = useState('login');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
@@ -35,26 +36,23 @@ function App() {
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser));
       setIsLoggedIn(true);
+      setCurrentPage('my-information');
     }
   }, []);
 
   const handleLogin = (user) => {
     setCurrentUser(user);
     setIsLoggedIn(true);
+    setCurrentPage('my-information');
   };
 
   const handleLogout = () => {
-    // Clear all user data
     localStorage.removeItem('user');
-    localStorage.clear();
-    
-    // Reset all state
     setCurrentUser(null);
     setIsLoggedIn(false);
+    setCurrentPage('login');
+    // Force clear sidebar state
     setSidebarOpen(true);
-    setCurrentPage('my-information');
-    setWishlist([]);
-    setCart([]);
   };
 
   const handleToggleSidebar = () => {
@@ -95,11 +93,7 @@ function App() {
 
   // Show login page if not logged in
   if (!isLoggedIn) {
-    return (
-      <div className="w-full min-h-screen overflow-hidden">
-        <LoginPage key="login-page" onLogin={handleLogin} />
-      </div>
-    );
+    return <LoginPage key="login-page" onLogin={handleLogin} />;
   }
 
   return (
