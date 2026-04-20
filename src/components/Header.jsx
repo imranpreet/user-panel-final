@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export function Header({ 
   onNavigate, 
+  onLogout,
+  currentUser,
+  onSidebarToggle,
   wishlistCount = 0, 
   cartCount = 0,
   wishlist = [],
@@ -22,11 +25,6 @@ export function Header({
     setIsAccountDropdownOpen(false);
   };
 
-  const handleMyAddress = () => {
-    onNavigate('my-address');
-    setIsAccountDropdownOpen(false);
-  };
-
   const handleMyPurchases = () => {
     onNavigate('my-purchases');
     setIsAccountDropdownOpen(false);
@@ -37,7 +35,7 @@ export function Header({
   };
 
   const handleHome = () => {
-    onNavigate('home');
+    onNavigate('my-information');
   };
 
   const handleUserIconClick = () => {
@@ -55,12 +53,27 @@ export function Header({
   return (
     <>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="luxury-container py-3 md:py-4 px-4 md:px-6">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <button onClick={handleHome} className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-black hover:text-gray-700 transition cursor-pointer">
-            Zigguratss
-          </button>
+      <div className="luxury-container py-4 md:py-5 px-4 md:px-6">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo + Hamburger Menu */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Hamburger Button - Mobile only */}
+            <button 
+              onClick={() => onSidebarToggle && onSidebarToggle()}
+              className="lg:hidden w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center hover:bg-amber-700 transition flex-shrink-0"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
+            {/* Logo Text - navigate to home */}
+            <button onClick={handleHome} className="hidden sm:inline flex items-center gap-2 hover:opacity-80 transition cursor-pointer">
+              <span className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-gray-900">
+                Zigguratss
+              </span>
+            </button>
+          </div>
 
           {/* Search Bar - Hidden on mobile */}
           <div className="hidden md:flex flex-1 mx-4 lg:mx-8">
@@ -99,10 +112,6 @@ export function Header({
                       <User className="w-3 md:w-4 h-3 md:h-4" />
                       My Information
                     </button>
-                    <button onClick={handleMyAddress} className="w-full px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-900 hover:bg-gray-50 transition flex items-center gap-2">
-                      <User className="w-3 md:w-4 h-3 md:h-4" />
-                      My Address
-                    </button>
                     <button onClick={handleMyPurchases} className="w-full px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-900 hover:bg-gray-50 transition flex items-center gap-2">
                       <ShoppingCart className="w-3 md:w-4 h-3 md:h-4" />
                       My Purchase
@@ -112,7 +121,7 @@ export function Header({
                       Creative Hub
                     </button>
                     <div className="border-t border-gray-200"></div>
-                    <button className="w-full px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-red-600 hover:bg-gray-50 transition flex items-center gap-2">
+                    <button onClick={onLogout} className="w-full px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-red-600 hover:bg-gray-50 transition flex items-center gap-2">
                       <LogOut className="w-3 md:w-4 h-3 md:h-4" />
                       Logout
                     </button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, Home, BarChart3, User, Settings, Bell, Lock, Wallet, LogOut, Menu, X } from 'lucide-react';
+import { ChevronRight, Home, BarChart3, User, Settings, Bell, Lock, Wallet, LogOut, Menu, X, Gift, ShoppingBag, CreditCard, ArrowRight } from 'lucide-react';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -8,10 +8,20 @@ import image444 from '../image444.jpg';
 import image555 from '../image555.jpg';
 import img222 from '../img222.jpg';
 import img333 from '../img333.jpg';
+import kudiImage from '../kudi.png';
+import sideImage from '../sidev.png';
 
-export function MyInformationDashboard() {
+export function MyInformationDashboard({ currentUser = null, sidebarOpen = true, onSidebarToggle = null }) {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [internalSidebarOpen, setInternalSidebarOpen] = useState(sidebarOpen);
+  const [profileImage, setProfileImage] = useState(null);
+  const [showAutofillModal, setShowAutofillModal] = useState(false);
+  const [autofillEmail, setAutofillEmail] = useState('');
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  
+  // Use currentUser data if available, otherwise use defaults
+  const userData = currentUser || {};
+  const userStats = userData.stats || {};
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -35,6 +45,38 @@ export function MyInformationDashboard() {
       favoriteArtworks: true,
     },
   });
+
+  // Sample Orders Data
+  const [orders] = useState([
+    {
+      id: '#ORD-001',
+      title: 'Krishna Leela',
+      artist: 'Sekhar Roy',
+      image: image444,
+      price: '₹299,000',
+      size: '152.40 x 121.92 cm',
+      type: 'Acrylic on Canvas',
+      status: 'Delivered',
+      date: '2024-03-15',
+      deliveryDate: '2024-03-22',
+      quantity: 1,
+      paymentStatus: 'Paid',
+    },
+    {
+      id: '#ORD-002',
+      title: 'Meditating Buddha',
+      artist: 'Spiritual Creator',
+      image: image555,
+      price: '₹185,500',
+      size: '120 x 100 cm',
+      type: 'Acrylic',
+      status: 'In Transit',
+      date: '2024-04-01',
+      deliveryDate: '2024-04-10',
+      quantity: 1,
+      paymentStatus: 'Paid',
+    },
+  ]);
 
   const activityData = [
     { month: 'Jan', views: 400, purchases: 240, favorites: 320 },
@@ -95,12 +137,26 @@ export function MyInformationDashboard() {
     }));
   };
 
+  const handleProfileImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'personal', label: 'Personal Information', icon: User },
     { id: 'preferences', label: 'Notifications', icon: Bell },
     { id: 'password', label: 'Password', icon: Lock },
     { id: 'budget', label: 'My Budget', icon: Wallet },
+    { id: 'offers', label: 'My Offers', icon: Gift },
+    { id: 'orders', label: 'My Orders', icon: ShoppingBag },
+    { id: 'payment', label: 'Payment Settings', icon: CreditCard },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -110,14 +166,14 @@ export function MyInformationDashboard() {
       <div className="flex flex-1">
         {/* Sidebar - FIXED BELOW NAVBAR */}
         <div
-          className={`fixed left-0 z-40 w-64 bg-gradient-to-b from-amber-700 via-amber-800 to-amber-900 shadow-2xl transform transition-transform duration-300 lg:translate-x-0 flex flex-col top-16 h-[calc(100vh-4rem)] ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          className={`fixed left-0 z-40 w-56 sm:w-64 bg-gradient-to-b from-amber-700 via-amber-800 to-amber-900 shadow-2xl transform transition-transform duration-300 lg:translate-x-0 flex flex-col top-16 h-[calc(100vh-4rem)] ${
+            internalSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
         {/* Close Button for Mobile */}
         <div className="lg:hidden absolute top-4 right-4">
           <button
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => setInternalSidebarOpen(false)}
             className="text-white hover:bg-amber-600 p-2 rounded-lg transition"
           >
             <X className="w-6 h-6" />
@@ -125,12 +181,35 @@ export function MyInformationDashboard() {
         </div>
 
         {/* Profile Section - Compact */}
-        <div className="p-6 text-center border-b border-amber-600">
-          <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-white flex items-center justify-center font-bold text-amber-700 text-2xl">
-            AS
+        <div className="p-6 text-center border-b border-amber-600 relative">
+          {/* Profile Image Container */}
+          <div className="relative w-24 h-24 mx-auto mb-3 rounded-full bg-white flex items-center justify-center font-bold text-amber-700 text-4xl overflow-hidden group shadow-lg">
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span>AS</span>
+            )}
+            
+            {/* Upload Overlay */}
+            <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleProfileImageUpload}
+                className="hidden"
+              />
+              <div className="text-white text-center">
+                <svg className="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <p className="text-xs font-bold">Upload</p>
+              </div>
+            </label>
           </div>
-          <h3 className="text-white font-semibold text-base">Arsh Deep</h3>
-          <p className="text-amber-100 text-xs">arshdeepkaur24@navgurukul.org</p>
+          
+          <h3 className="text-white font-semibold text-base">{userData.name || 'Arsh Deep'}</h3>
+          <p className="text-amber-100 text-xs">{userData.email || 'arshdeepkaur24@navgurukul.org'}</p>
+          <p className="text-amber-100 text-xs mt-2 text-center text-[10px]">Hover to upload profile image</p>
         </div>
 
         {/* Menu Items - Compact */}
@@ -142,7 +221,7 @@ export function MyInformationDashboard() {
                 key={item.id}
                 onClick={() => {
                   setActiveSection(item.id);
-                  setSidebarOpen(false);
+                  setInternalSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
                   activeSection === item.id
@@ -168,7 +247,7 @@ export function MyInformationDashboard() {
 
       {/* Mobile Toggle Button */}
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
+        onClick={() => setInternalSidebarOpen(!internalSidebarOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 bg-amber-700 text-white p-2 rounded-lg shadow-lg"
       >
         <Menu className="w-6 h-6" />
@@ -209,8 +288,8 @@ export function MyInformationDashboard() {
                   </div>
                   <div className="p-6 border-l-4 border-amber-500">
                     <div className="text-gray-500 text-sm font-semibold uppercase">Total Views</div>
-                    <div className="text-3xl font-bold text-amber-700 mt-2">3,640</div>
-                    <div className="text-green-600 text-xs mt-2">↑ 12% from last month</div>
+                    <div className="text-3xl font-bold text-amber-700 mt-2">{(userStats.totalViews || 3640).toLocaleString()}</div>
+                    <div className="text-green-600 text-xs mt-2">↑ {userStats.viewsChange || 12}% from last month</div>
                   </div>
                 </div>
 
@@ -221,8 +300,8 @@ export function MyInformationDashboard() {
                   </div>
                   <div className="p-6 border-l-4 border-orange-500">
                     <div className="text-gray-500 text-sm font-semibold uppercase">Total Spent</div>
-                    <div className="text-3xl font-bold text-orange-700 mt-2">$18,600</div>
-                    <div className="text-green-600 text-xs mt-2">↑ 18% from last month</div>
+                    <div className="text-3xl font-bold text-orange-700 mt-2">${(userStats.totalSpent || 18600).toLocaleString()}</div>
+                    <div className="text-green-600 text-xs mt-2">↑ {userStats.spentChange || 18}% from last month</div>
                   </div>
                 </div>
 
@@ -233,8 +312,8 @@ export function MyInformationDashboard() {
                   </div>
                   <div className="p-6 border-l-4 border-purple-500">
                     <div className="text-gray-500 text-sm font-semibold uppercase">Items Owned</div>
-                    <div className="text-3xl font-bold text-purple-700 mt-2">41</div>
-                    <div className="text-green-600 text-xs mt-2">↑ 8% from last month</div>
+                    <div className="text-3xl font-bold text-purple-700 mt-2">{userStats.itemsOwned || 41}</div>
+                    <div className="text-green-600 text-xs mt-2">↑ {userStats.ownedChange || 8}% from last month</div>
                   </div>
                 </div>
 
@@ -245,8 +324,8 @@ export function MyInformationDashboard() {
                   </div>
                   <div className="p-6 border-l-4 border-pink-500">
                     <div className="text-gray-500 text-sm font-semibold uppercase">Collections</div>
-                    <div className="text-3xl font-bold text-pink-700 mt-2">12</div>
-                    <div className="text-green-600 text-xs mt-2">↑ 3 new collections</div>
+                    <div className="text-3xl font-bold text-pink-700 mt-2">{userStats.collections || 12}</div>
+                    <div className="text-green-600 text-xs mt-2">↑ {userStats.collectionsChange || 3} new collections</div>
                   </div>
                 </div>
               </div>
@@ -505,109 +584,223 @@ export function MyInformationDashboard() {
                       Save my information
                     </button>
                   </div>
-                </div>
-              )}
 
-              {/* Preferences Section - NOW Shows Email Notifications */}
-              {activeSection === 'preferences' && (
-                <div className="space-y-8">
-                  {/* Email Notifications Section */}
-                  <div className="bg-white p-8 rounded-lg shadow-md">
-                    <h2 className="text-3xl font-serif font-bold text-black mb-8 pb-4 border-b-3 border-amber-500">
-                      MY EMAIL NOTIFICATIONS
-                    </h2>
+                  {/* Define Your Addresses Section */}
+                  <div className="mt-12 bg-gray-50 p-8 rounded-lg">
+                    <h3 className="text-4xl font-bold text-gray-900 mb-2">Define your addresses</h3>
+                    <p className="text-gray-600 text-sm mb-8">Indicate to which address you wish to receive your products and be invoiced</p>
 
-                    <div className="max-w-2xl mx-auto">
-                      <p className="text-center text-gray-600 text-sm mb-8">
-                        Choose which notifications you'd like to receive to stay updated
-                      </p>
+                    {/* Delivery Address */}
+                    <div className="bg-white p-6 rounded-lg mb-8">
+                      <h4 className="text-lg font-bold text-gray-900 mb-6">Delivery address</h4>
 
-                      <div className="space-y-3">
-                        {[
-                          { key: 'promotions', label: 'Notifications concerning promotions', icon: '🎁' },
-                          { key: 'favoriteArtists', label: 'Notifications concerning your favorite artists', icon: '🎨' },
-                          { key: 'favoriteGalleries', label: 'Notifications concerning your favorite galleries', icon: '🏛️' },
-                          { key: 'favoriteArtworks', label: 'Notifications concerning your favorite artworks', icon: '✨' },
-                        ].map((notification) => (
-                          <label 
-                            key={notification.key} 
-                            className="flex items-center cursor-pointer p-4 rounded-lg border border-gray-200 hover:border-amber-500 hover:bg-amber-50 transition"
-                          >
-                            <input
-                              type="checkbox"
-                              name={notification.key}
-                              checked={formData.notifications[notification.key]}
-                              onChange={handleCheckboxChange}
-                              className="w-5 h-5 accent-amber-500 rounded cursor-pointer"
-                            />
-                            <span className="ml-3 text-sm text-gray-800 font-medium">{notification.label}</span>
-                          </label>
-                        ))}
+                      {/* Full Name */}
+                      <div className="mb-6">
+                        <label className="block text-sm font-semibold text-gray-800 mb-3">Full name</label>
+                        <input
+                          type="text"
+                          placeholder="Recipient name for delivery"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Address Lines */}
+                      <div className="mb-6">
+                        <label className="block text-sm font-semibold text-gray-800 mb-3">Address</label>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                          <input
+                            type="text"
+                            placeholder="Address line 1"
+                            className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Address line 2"
+                            className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* City, Zip, Apartment */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">Apartment/Building/...</label>
+                          <input
+                            type="text"
+                            placeholder="Apartment/Building/..."
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">Zip Code/Postcode</label>
+                          <input
+                            type="text"
+                            placeholder="Zip Code/Postcode"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">City</label>
+                          <input
+                            type="text"
+                            placeholder="City"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* State and Country */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">State/County</label>
+                          <input
+                            type="text"
+                            placeholder="State/County"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">Country</label>
+                          <select className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white cursor-pointer">
+                            <option value="">Please select a country</option>
+                            <option value="india">India</option>
+                            <option value="usa">United States</option>
+                            <option value="uk">United Kingdom</option>
+                            <option value="canada">Canada</option>
+                            <option value="australia">Australia</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Checkbox */}
+                      <div className="flex items-center mb-6">
+                        <input
+                          type="checkbox"
+                          id="billingAddress"
+                          defaultChecked
+                          className="w-5 h-5 accent-blue-600 cursor-pointer"
+                        />
+                        <label htmlFor="billingAddress" className="ml-3 text-sm text-gray-800 font-medium cursor-pointer">
+                          The billing address is the same as the delivery address
+                        </label>
+                      </div>
+
+                      {/* Update Button */}
+                      <div className="flex justify-end">
+                        <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 font-bold rounded-full hover:bg-blue-50 transition">
+                          Update
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Notification Frequency Section */}
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-8 rounded-lg border-2 border-amber-200 shadow-md">
-                    <h3 className="text-2xl font-bold text-amber-900 mb-6">NOTIFICATION FREQUENCY</h3>
-                    <p className="text-gray-600 mb-6">Select how often you'd like to receive notifications:</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {[
-                        { value: 'instant', label: 'Instant', desc: 'Get notified immediately' },
-                        { value: 'daily', label: 'Daily Digest', desc: 'Once per day' },
-                        { value: 'weekly', label: 'Weekly Digest', desc: 'Once per week' },
-                      ].map((freq) => (
-                        <label key={freq.value} className="flex flex-col items-center cursor-pointer p-4 rounded-lg border-2 border-amber-200 hover:border-amber-500 hover:bg-white transition-all">
-                          <span className="font-semibold text-gray-800">{freq.label}</span>
-                          <span className="text-xs text-gray-600 text-center mt-2">{freq.desc}</span>
-                          <input type="radio" name="frequency" value={freq.value} className="mt-3 w-4 h-4 accent-amber-500" defaultChecked={freq.value === 'daily'} />
-                        </label>
-                      ))}
+                  {/* Delete Account Section */}
+                  <div className="mt-12 bg-red-50 border-2 border-red-200 rounded-lg p-8">
+                    <h3 className="text-2xl font-bold text-red-900 mb-2">Delete my account</h3>
+                    <p className="text-red-800 text-sm mb-6">To delete your account, please write your email in the box below</p>
+                    
+                    <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
+                      <div className="flex-1 w-full lg:w-auto">
+                        <label className="block text-sm font-semibold text-red-900 mb-3">Your email</label>
+                        <input
+                          type="email"
+                          placeholder="Your email"
+                          className="w-full lg:w-80 px-4 py-3 border-2 border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                        />
+                      </div>
+                      <button className="px-8 py-3 border-2 border-red-600 text-red-600 font-bold rounded-full hover:bg-red-50 transition whitespace-nowrap">
+                        Delete my account
+                      </button>
                     </div>
                   </div>
+                </div>
+              )}
 
-                  {/* Push Notifications Section */}
-                  <div className="bg-white p-8 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-bold text-black mb-6 pb-4 border-b-2 border-amber-300">PUSH NOTIFICATIONS</h3>
-                    <div className="max-w-2xl mx-auto space-y-4">
-                      {[
-                        { label: 'New artwork from favorite artists', enabled: true },
-                        { label: 'Price drops on saved items', enabled: true },
-                        { label: 'Gallery events and exhibitions', enabled: false },
-                        { label: 'New collection recommendations', enabled: true },
-                        { label: 'Account and security updates', enabled: true },
-                      ].map((push, idx) => (
-                        <label key={idx} className="flex items-center cursor-pointer p-4 rounded-lg border border-gray-200 hover:border-amber-400 hover:bg-amber-50 transition">
-                          <input type="checkbox" defaultChecked={push.enabled} className="w-4 h-4 accent-amber-500 rounded" />
-                          <span className="ml-3 text-sm text-gray-800 font-medium">{push.label}</span>
-                        </label>
-                      ))}
+              {/* Preferences Section - Choose how to receive notifications */}
+              {activeSection === 'preferences' && (
+                <div className="space-y-6 sm:space-y-8">
+                  {/* Main Notifications Section */}
+                  <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6 mb-6 sm:mb-8">
+                      <div className="flex-1">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">Choose how to receive notifications</h2>
+                        <p className="text-gray-600 text-xs sm:text-sm">Define your search criteria and receive notifications as soon as a new piece matching your criteria is posted online.</p>
+                      </div>
+                      <button className="px-4 sm:px-6 md:px-8 py-2 border-2 border-gray-800 text-gray-800 font-semibold rounded-full hover:bg-gray-100 transition whitespace-nowrap text-sm sm:text-base">
+                        Disable all
+                      </button>
                     </div>
-                  </div>
 
-                  {/* Notification History Section */}
-                  <div className="bg-white p-8 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-bold text-black mb-6 pb-4 border-b-2 border-amber-300">RECENT NOTIFICATIONS</h3>
-                    <div className="space-y-3 max-w-2xl mx-auto">
-                      {[
-                        { date: 'Today at 10:30 AM', message: 'New artwork from Emma Wilson' },
-                        { date: 'Yesterday at 3:15 PM', message: 'Price drop on "Abstract Dreams" - Save $200!' },
-                        { date: '2 days ago', message: 'Modern Art Exhibition at City Gallery' },
-                        { date: '3 days ago', message: 'Recommended: Contemporary Collection' },
-                      ].map((notif, idx) => (
-                        <div key={idx} className="p-4 rounded-lg border-l-4 border-amber-500 bg-amber-50 hover:bg-amber-100 transition">
-                          <p className="text-gray-800 font-medium">{notif.message}</p>
-                          <p className="text-gray-500 text-xs mt-1">{notif.date}</p>
+                    <div className="bg-gray-50 p-4 sm:p-6 md:p-8 rounded-lg space-y-4 sm:space-y-6">
+                      {/* Your following artists */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Your following artists</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm">Get important notifications of new works from artists and designers you follow</p>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                        <select className="px-3 sm:px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-base whitespace-nowrap">
+                          <option>No more than once a day</option>
+                          <option>Instant</option>
+                          <option>Weekly</option>
+                        </select>
+                      </div>
 
-                  {/* Save Button */}
-                  <div className="flex justify-center">
-                    <button className="px-16 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-900 transition shadow-lg hover:shadow-xl">
-                      Save notification settings
-                    </button>
+                      {/* Your saved searches */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Your saved searches</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm">Be notified of new artworks that match your search criteria</p>
+                        </div>
+                        <select className="px-3 sm:px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-base whitespace-nowrap">
+                          <option>No more than once a day</option>
+                          <option>Instant</option>
+                          <option>Weekly</option>
+                        </select>
+                      </div>
+
+                      {/* Our newsletter */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Our newsletter</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm">Be notified of the news and activity from Singulart</p>
+                        </div>
+                        <label className="flex items-center cursor-pointer flex-shrink-0">
+                          <input type="checkbox" className="w-5 sm:w-6 h-5 sm:h-6 accent-green-600 cursor-pointer" defaultChecked={false} />
+                          <span className="sr-only">Toggle newsletter</span>
+                        </label>
+                      </div>
+
+                      {/* Your favorites */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Your favorites</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm">Receive notifications if another collector is interested in your favorite pieces</p>
+                        </div>
+                        <label className="flex items-center cursor-pointer flex-shrink-0">
+                          <input type="checkbox" className="w-5 sm:w-6 h-5 sm:h-6 accent-green-600 cursor-pointer" defaultChecked={true} />
+                          <span className="sr-only">Toggle favorites</span>
+                        </label>
+                      </div>
+
+                      {/* Your personalized recommendations */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Your personalized recommendations</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm">Let our algorithms inspire you by offering personalized recommendations based on what you previously liked on our site</p>
+                        </div>
+                        <label className="flex items-center cursor-pointer flex-shrink-0">
+                          <input type="checkbox" className="w-5 sm:w-6 h-5 sm:h-6 accent-green-600 cursor-pointer" defaultChecked={true} />
+                          <span className="sr-only">Toggle recommendations</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Update Button */}
+                    <div className="flex justify-center sm:justify-end mt-6 sm:mt-8">
+                      <button className="px-8 sm:px-12 py-2 sm:py-3 border-2 border-blue-600 text-blue-600 font-bold rounded-full hover:bg-blue-50 transition text-sm sm:text-base">
+                        Update
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1011,16 +1204,386 @@ export function MyInformationDashboard() {
                 </div>
               )}
 
+              {/* My Offers Section */}
+              {activeSection === 'offers' && (
+                <div className="bg-white p-8 rounded-lg shadow-md">
+                  <h2 className="text-3xl font-serif font-bold text-black mb-2 pb-4 border-b-3 border-amber-500">
+                    MY OFFERS
+                  </h2>
+                  <p className="text-gray-600 text-sm mb-8">View and manage all your active offers and negotiations</p>
+                  
+                  <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                    <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 text-lg font-semibold mb-2">No Active Offers</p>
+                    <p className="text-gray-500 text-sm">You haven't received any offers yet. Keep exploring artworks to get offers from sellers.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* My Orders Section */}
+              {activeSection === 'orders' && (
+                <div className="space-y-8">
+                  <div className="bg-white p-8 rounded-lg shadow-md">
+                    <h2 className="text-3xl font-serif font-bold text-black mb-2 pb-4 border-b-3 border-amber-500">
+                      MY ORDERS
+                    </h2>
+                    <p className="text-gray-600 text-sm mb-8">Track and manage all your purchases and orders</p>
+                    
+                    {orders.length === 0 ? (
+                      <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                        <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600 text-lg font-semibold mb-2">No Orders Yet</p>
+                        <p className="text-gray-500 text-sm">You haven't placed any orders yet. Start shopping for beautiful artworks today!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Filter and Sort Options */}
+                        <div className="flex flex-wrap gap-3 mb-6">
+                          <select className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
+                            <option>All Orders</option>
+                            <option>Delivered</option>
+                            <option>In Transit</option>
+                            <option>Pending</option>
+                          </select>
+                          <select className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
+                            <option>Latest Orders</option>
+                            <option>Oldest Orders</option>
+                            <option>Price: High to Low</option>
+                            <option>Price: Low to High</option>
+                          </select>
+                        </div>
+
+                        {/* Orders List */}
+                        {orders.map((order) => (
+                          <div key={order.id} className="border-2 border-gray-300 rounded-lg overflow-hidden hover:border-amber-500 transition bg-white">
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6">
+                              {/* Order Image */}
+                              <div className="lg:col-span-1">
+                                <div className="relative h-48 md:h-56 rounded-lg overflow-hidden shadow-md">
+                                  <img src={order.image} alt={order.title} className="w-full h-full object-cover" />
+                                  <div className="absolute top-3 right-3 bg-amber-600 text-white px-4 py-2 rounded-full text-xs font-bold">
+                                    {order.status}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Order Details */}
+                              <div className="lg:col-span-3 flex flex-col justify-between">
+                                {/* Header Info */}
+                                <div>
+                                  <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-semibold">ORDER ID</p>
+                                      <p className="text-lg font-bold text-gray-900">{order.id}</p>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-xs text-gray-500 font-semibold">ORDER DATE</p>
+                                      <p className="text-sm font-semibold text-gray-900">{new Date(order.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                    </div>
+                                  </div>
+
+                                  {/* Art Details */}
+                                  <div className="mb-6 pb-6 border-b-2 border-gray-200">
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{order.title}</h3>
+                                    <p className="text-gray-600 text-sm mb-4">by <span className="font-semibold text-gray-900">{order.artist}</span></p>
+                                    
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                      <div className="bg-gray-50 p-3 rounded-lg">
+                                        <p className="text-xs text-gray-500 font-semibold mb-1">SIZE</p>
+                                        <p className="font-semibold text-gray-900">{order.size}</p>
+                                      </div>
+                                      <div className="bg-gray-50 p-3 rounded-lg">
+                                        <p className="text-xs text-gray-500 font-semibold mb-1">TYPE</p>
+                                        <p className="font-semibold text-gray-900">{order.type}</p>
+                                      </div>
+                                      <div className="bg-gray-50 p-3 rounded-lg">
+                                        <p className="text-xs text-gray-500 font-semibold mb-1">QUANTITY</p>
+                                        <p className="font-semibold text-gray-900">{order.quantity}</p>
+                                      </div>
+                                      <div className="bg-amber-50 p-3 rounded-lg border-2 border-amber-200">
+                                        <p className="text-xs text-amber-600 font-semibold mb-1">PRICE</p>
+                                        <p className="font-bold text-amber-700">{order.price}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Order Status Info */}
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-6">
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-semibold mb-2">PAYMENT STATUS</p>
+                                      <p className={`inline-block px-3 py-1 rounded-full font-semibold text-xs ${order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                        {order.paymentStatus}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-semibold mb-2">ORDER STATUS</p>
+                                      <p className={`inline-block px-3 py-1 rounded-full font-semibold text-xs ${
+                                        order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
+                                        order.status === 'In Transit' ? 'bg-blue-100 text-blue-700' :
+                                        'bg-gray-100 text-gray-700'
+                                      }`}>
+                                        {order.status}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-gray-500 font-semibold mb-2">EXPECTED DELIVERY</p>
+                                      <p className="font-semibold text-gray-900">{new Date(order.deliveryDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-wrap gap-3">
+                                  <button className="px-6 py-2 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition text-sm">
+                                    Track Order
+                                  </button>
+                                  <button className="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition text-sm">
+                                    View Invoice
+                                  </button>
+                                  <button className="px-6 py-2 border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-amber-500 transition text-sm">
+                                    Contact Support
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Settings Section */}
+              {activeSection === 'payment' && (
+                <div className="space-y-8">
+                  <div className="bg-white p-8 rounded-lg shadow-md">
+                    <h2 className="text-3xl font-serif font-bold text-black mb-2 pb-4 border-b-3 border-amber-500">
+                      PAYMENT SETTINGS
+                    </h2>
+                    <p className="text-gray-600 text-sm mb-8">Manage your payment methods and billing information</p>
+
+                    {/* Define Payment Method Section */}
+                    <div className="mb-12">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Define your payment method</h3>
+                      <p className="text-gray-600 text-sm mb-8">Enter your credit card information to make your purchases.</p>
+
+                      {/* Main Card Container */}
+                      <div className="bg-gray-50 p-8 rounded-lg border border-gray-200">
+                        {/* Payment Methods Accepted */}
+                        <div className="mb-8">
+                          <p className="text-sm font-bold text-gray-800 mb-4">We accept</p>
+                          <div className="flex gap-3 flex-wrap">
+                            <div className="bg-white border-2 border-gray-300 px-4 py-2 rounded-lg flex items-center gap-2">
+                              <span className="text-lg">💳</span>
+                              <span className="text-sm font-semibold">VISA</span>
+                            </div>
+                            <div className="bg-white border-2 border-gray-300 px-4 py-2 rounded-lg flex items-center gap-2">
+                              <span className="text-lg">🔴</span>
+                              <span className="text-sm font-semibold">Mastercard</span>
+                            </div>
+                            <div className="bg-white border-2 border-gray-300 px-4 py-2 rounded-lg flex items-center gap-2">
+                              <span className="text-lg">🔵</span>
+                              <span className="text-sm font-semibold">Maestro</span>
+                            </div>
+                            <div className="bg-blue-600 text-white border-2 border-blue-600 px-4 py-2 rounded-lg flex items-center gap-2">
+                              <span className="text-xs font-bold">AMEX</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                          {/* Left Side - Form */}
+                          <div className="lg:col-span-2">
+                            {/* Name on Card */}
+                            <div className="mb-6">
+                              <label className="text-sm font-bold text-gray-800 mb-3 block">Name on the card</label>
+                              <input 
+                                type="text" 
+                                placeholder="Name on the card"
+                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                              />
+                            </div>
+
+                            {/* Card Details */}
+                            <div className="mb-6">
+                              <label className="text-sm font-bold text-gray-800 mb-3 block">Card details</label>
+                              <div className="relative">
+                                <input 
+                                  type="text" 
+                                  placeholder="Card number"
+                                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white pr-28"
+                                />
+                                <button
+                                  onClick={() => setShowAutofillModal(true)}
+                                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer"
+                                >
+                                  Autofill ✓
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Expiry and CVV */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <input 
+                                type="text" 
+                                placeholder="MM/YY"
+                                className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white text-sm"
+                              />
+                              <input 
+                                type="text" 
+                                placeholder="CVV"
+                                className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Right Side - Card Preview */}
+                          <div className="lg:col-span-1 flex flex-col items-center">
+                            <div className="w-full bg-gray-900 rounded-2xl p-6 text-white shadow-xl mb-6" style={{ aspectRatio: '16/9' }}>
+                              <div className="flex justify-between items-start mb-8">
+                                <div className="text-lg font-bold">•••• •••• •••• ••••</div>
+                                <div className="text-xs opacity-75">CHIP</div>
+                              </div>
+                              <div className="flex justify-between items-end h-full">
+                                <div>
+                                  <div className="text-xs opacity-75 mb-1">NAME</div>
+                                  <div className="text-sm font-semibold">YOUR NAME</div>
+                                </div>
+                                <div className="w-12 h-8 bg-gradient-to-r from-amber-400 to-yellow-300 rounded"></div>
+                              </div>
+                            </div>
+                            <button className="px-10 py-3 border-2 border-blue-600 text-blue-600 font-bold rounded-full hover:bg-blue-50 transition text-sm">
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Billing Information - Keep Original */}
+                    <div className="border-t-2 border-gray-200 pt-8">
+                      <h3 className="text-xl font-bold text-gray-800 mb-6">Billing Address</h3>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">Street Address</label>
+                          <input type="text" placeholder="Enter street address" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">City</label>
+                          <input type="text" placeholder="Enter city" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">State/Province</label>
+                          <input type="text" placeholder="Enter state" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">Postal Code</label>
+                          <input type="text" placeholder="Enter postal code" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="flex justify-center gap-4 mt-8">
+                      <button className="px-16 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-900 transition shadow-lg hover:shadow-xl">
+                        Save Billing Info
+                      </button>
+                      <button className="px-16 py-3 bg-gray-300 text-gray-800 rounded-full font-semibold hover:bg-gray-400 transition shadow-lg hover:shadow-xl">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Autofill Modal */}
+                  {showAutofillModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
+                        {/* Close Button */}
+                        <button
+                          onClick={() => setShowAutofillModal(false)}
+                          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+                        >
+                          ×
+                        </button>
+
+                        {/* Header with Icon */}
+                        <div className="flex items-center gap-2 mb-6">
+                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
+                            ✓
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900">link</h2>
+                        </div>
+
+                        {/* Title and Description */}
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Continue with Link</h3>
+                        <p className="text-gray-600 text-sm mb-8">Enter your information to get started</p>
+
+                        {/* Email Input */}
+                        <div className="mb-6">
+                          <input
+                            type="email"
+                            placeholder="Email"
+                            value={autofillEmail}
+                            onChange={(e) => setAutofillEmail(e.target.value)}
+                            className="w-full px-4 py-4 border-2 border-gray-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                          />
+                        </div>
+
+                        {/* Continue Button */}
+                        <button
+                          onClick={() => {
+                            if (autofillEmail) {
+                              // Handle autofill logic
+                              setShowAutofillModal(false);
+                              setAutofillEmail('');
+                            }
+                          }}
+                          className="w-full py-4 bg-gray-900 text-white font-bold rounded-full hover:bg-gray-800 transition"
+                        >
+                          Continue
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Newsletter Section - Appears at bottom of all pages */}
+              <div className="py-16 md:py-20 px-4 md:px-8 mt-16">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                  <div>
+                    <h3 className="text-3xl md:text-4xl font-black text-blue-600 mb-4">Sign up and get 10% off your first order</h3>
+                    <p className="text-gray-600 mb-6 text-lg">Fresh arrivals, curator picks, exclusive features.</p>
+                    <div className="flex flex-col gap-3">
+                      <input
+                        type="email"
+                        value={newsletterEmail}
+                        onChange={(e) => setNewsletterEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      />
+                      <button className="border-2 border-blue-600 text-blue-600 font-bold px-8 py-3 rounded-full hover:bg-blue-50 transition inline-flex items-center justify-center gap-2">
+                        Get 10% off now <ArrowRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="relative h-96 md:h-[500px] rounded-xl overflow-hidden shadow-xl">
+                    <img src={sideImage} alt="Newsletter" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         )}
       </div>
 
       {/* Overlay */}
-      {sidebarOpen && (
+      {internalSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden top-16"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setInternalSidebarOpen(false)}
         ></div>
       )}
       </div>

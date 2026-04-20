@@ -13,15 +13,6 @@ export function MyAccount({ onNavigate }) {
       iconColor: 'text-blue-600'
     },
     {
-      id: 2,
-      title: 'My Addresses',
-      description: 'Modify and create your delivery and billing addresses.',
-      icon: MapPin,
-      action: 'my-address',
-      bgColor: 'bg-gradient-to-br from-green-50 to-green-100',
-      iconColor: 'text-green-600'
-    },
-    {
       id: 3,
       title: 'My Purchases',
       description: 'View and track your purchases',

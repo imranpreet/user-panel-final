@@ -308,6 +308,20 @@ button {
   @apply text-xl md:text-2xl lg:text-3xl;
 }
 
+/* Continuous Scroll Animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}
+
 /* Mobile Container */
 @media (max-width: 640px) {
   .luxury-container {

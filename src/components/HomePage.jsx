@@ -304,14 +304,24 @@ export function HomePage({ onNavigate, onAddToWishlist, onAddToCart }) {
       </div>
 
       {/* Shop by Price */}
-      <div className="py-16 md:py-20 px-4 md:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-center text-gray-900 mb-12">Shop artworks by price</h2>
-          <div className="flex flex-wrap justify-center gap-3">
+      <div className="bg-gray-50">
+        <div className="py-8 md:py-12">
+          <h2 className="text-4xl md:text-5xl font-black text-center text-gray-900 mb-8">Shop artworks by price</h2>
+        </div>
+        <div className="overflow-hidden bg-gray-50">
+          <div className="flex gap-2 animate-scroll px-0">
             {priceRanges.map((range) => (
               <button
                 key={range.value}
-                className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold rounded-full transition"
+                className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-full transition flex-shrink-0"
+              >
+                {range.label}
+              </button>
+            ))}
+            {priceRanges.map((range) => (
+              <button
+                key={`${range.value}-dup`}
+                className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-full transition flex-shrink-0"
               >
                 {range.label}
               </button>
@@ -478,40 +488,40 @@ export function HomePage({ onNavigate, onAddToWishlist, onAddToCart }) {
       </div>
 
       {/* CTA Section */}
-      <div className="py-16 md:py-24 px-4 md:px-8 bg-gradient-to-r from-yellow-300 to-yellow-100">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-          <div className="lg:col-span-1">
-            <h2 className="text-4xl md:text-5xl font-black text-blue-600 mb-6">Discover and Sell Art Online with Singulart</h2>
-            <p className="text-lg text-gray-900 mb-4">
+      <div className="py-16 md:py-24 px-4 md:px-8 bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-center">
+          <div className="lg:col-span-1 order-2 lg:order-1">
+            <h2 className="text-3xl md:text-5xl font-black text-blue-600 mb-6 leading-tight">Discover and Sell Art Online with Singulart</h2>
+            <p className="text-base md:text-lg text-gray-900 mb-4 leading-relaxed">
               At Singulart, we believe every space deserves art as unique as the people who inhabit it. As the leading online art gallery, we make it easy and joyful to buy art online or sell art online — connecting a global community of art collectors and contemporary artists.
             </p>
-            <p className="text-lg text-gray-900 mb-6">
+            <p className="text-base md:text-lg text-gray-900 mb-6 leading-relaxed">
               Whether you're discovering your first piece of art for sale or offering your latest creation, we bring art lovers and artists together through thoughtful curation, powerful tools, and trusted global support.
             </p>
             <div className="space-y-4 mb-8">
               <div>
-                <p className="font-bold text-gray-900 mb-2">For clients</p>
-                <p className="text-gray-700">We offer expert guidance and personalised recommendations to help you find original art for sale that reflects your style, space, and story.</p>
+                <p className="font-bold text-gray-900 mb-2 text-lg">For clients</p>
+                <p className="text-gray-700 text-sm md:text-base">We offer expert guidance and personalised recommendations to help you find original art for sale that reflects your style, space, and story.</p>
               </div>
               <div>
-                <p className="font-bold text-gray-900 mb-2">For artists</p>
-                <p className="text-gray-700">We provide everything you need to sell art online with confidence—international exposure, marketing support, and the freedom to focus on creating.</p>
+                <p className="font-bold text-gray-900 mb-2 text-lg">For artists</p>
+                <p className="text-gray-700 text-sm md:text-base">We provide everything you need to sell art online with confidence—international exposure, marketing support, and the freedom to focus on creating.</p>
               </div>
             </div>
-            <p className="text-lg text-blue-600 font-bold mb-6">
+            <p className="text-base md:text-lg text-blue-600 font-bold mb-8 leading-relaxed">
               Join Singulart and become part of a diverse and creative community—where art is more than decoration, it's self-expression.
             </p>
-            <div className="flex gap-4">
-              <button onClick={() => onNavigate('all-artworks')} className="bg-blue-600 text-white font-bold px-8 py-3 rounded-full hover:bg-blue-700 transition">
+            <div className="flex flex-wrap gap-4">
+              <button onClick={() => onNavigate('all-artworks')} className="bg-blue-600 text-white font-bold px-8 py-3 rounded-full hover:bg-blue-700 transition transform hover:scale-105">
                 Explore art
               </button>
-              <button className="border-2 border-blue-600 text-blue-600 font-bold px-8 py-3 rounded-full hover:bg-blue-50 transition">
+              <button className="border-2 border-blue-600 text-blue-600 font-bold px-8 py-3 rounded-full hover:bg-blue-600 hover:text-white transition transform hover:scale-105">
                 Sell Your Art
               </button>
             </div>
           </div>
-          <div className="lg:col-span-2 relative h-[600px] md:h-[700px] rounded-xl overflow-hidden shadow-xl">
-            <img src={kudiImage} alt="Artist" className="w-full h-full object-cover object-center" />
+          <div className="lg:col-span-1 order-1 lg:order-2 relative h-[500px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+            <img src={kudiImage} alt="Artist showcasing art" className="w-full h-full object-cover object-center" />
           </div>
         </div>
       </div>

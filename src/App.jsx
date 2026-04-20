@@ -1,7 +1,8 @@
 import './App.css'
 import './index.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from './components/Header'
+import { LoginPage } from './components/LoginPage'
 import { HomePage } from './components/HomePage'
 import { MyAccount } from './components/MyAccount'
 import { MyInformationDashboard } from './components/MyInformationDashboard'
@@ -21,9 +22,37 @@ import { CollectionsSection } from './components/CollectionsSection'
 import { Footer } from './components/Footer'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState('my-information');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
+
+  // Check for logged-in user on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setCurrentUser(JSON.parse(savedUser));
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+    setCurrentPage('my-information');
+  };
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   const addToWishlist = (item) => {
     setWishlist(prev => {
@@ -57,10 +86,18 @@ function App() {
     setWishlist(prev => prev.filter(w => w.id !== itemId));
   };
 
+  // Show login page if not logged in
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <div className="bg-white">
       <Header 
         onNavigate={setCurrentPage} 
+        onLogout={handleLogout}
+        currentUser={currentUser}
+        onSidebarToggle={handleToggleSidebar}
         wishlistCount={wishlist.length}
         cartCount={cart.length}
         wishlist={wishlist}
@@ -68,17 +105,6 @@ function App() {
         onRemoveFromWishlist={removeFromWishlist}
         onRemoveFromCart={removeFromCart}
       />
-      
-      {currentPage === 'home' && (
-        <>
-          <HomePage 
-            onNavigate={setCurrentPage}
-            onAddToWishlist={addToWishlist}
-            onAddToCart={addToCart}
-          />
-          <Footer />
-        </>
-      )}
       
       {currentPage === 'my-account' && (
         <>
@@ -89,14 +115,7 @@ function App() {
       
       {currentPage === 'my-information' && (
         <>
-          <MyInformationDashboard />
-          <Footer />
-        </>
-      )}
-      
-      {currentPage === 'my-address' && (
-        <>
-          <MyAddress />
+          <MyInformationDashboard currentUser={currentUser} sidebarOpen={sidebarOpen} onSidebarToggle={handleToggleSidebar} />
           <Footer />
         </>
       )}
